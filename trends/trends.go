@@ -1,10 +1,14 @@
 package main
 
 import (
+    "log"
     "fmt"
     "encoding/json"
     "net/http"
+    "time"
 )
+
+var redditUrl string = "http://www.reddit.com/r/all/hot.json"
 
 type Response struct {
     Data struct {
@@ -24,9 +28,14 @@ func (i Item) String() string {
     return fmt.Sprintf("%s\n%s\n%s", i.Title, i.URL, i.Thumbnail)
 }
 
+type Trends struct {
+    Topics []Item
+}
 
-func main() {
-    resp, err := http.Get("http://www.reddit.com/r/all/hot.json")
+var data []Item
+
+func grabData() {
+    resp, err := http.Get(redditUrl)
     if err != nil {
         return;
     }
@@ -39,15 +48,40 @@ func main() {
     if err != nil {
         return;
     }
-    items := make([]Item, len(r.Data.Children))
+    data = make([]Item, len(r.Data.Children))
     for i, child := range r.Data.Children {
-        items[i] = child.Data
+        data[i] = child.Data
     }
-    // fmt.Println(items)
-    fmt.Println(items[0].Title)
-    fmt.Println()
-    fmt.Println(items[0].URL)
-    fmt.Println()
-    fmt.Println(items[0].Thumbnail)
+}
+
+func getTrendshandler(w http.ResponseWriter, r *http.Request) {
+
+
+    trends := Trends{data}
+    
+    js, err := json.Marshal(trends)
+
+    if err != nil {
+        http.Error(w, err.Error(), http.StatusInternalServerError)
+    }
+
+    w.Header().Set("Content-Type", "application/json")
+    w.Write(js)
+}
+
+
+func cron() {
+    for {
+        grabData()
+        time.Sleep(5*time.Second)
+    }
+}
+
+func main() {
+
+    go cron()
+
+    http.HandleFunc("/trends", getTrendshandler)
+    log.Fatal(http.ListenAndServe(":8080", nil))
 
 }
