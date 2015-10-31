@@ -1,4 +1,4 @@
-package main
+package trends
 
 import (
     "log"
@@ -8,34 +8,34 @@ import (
     "time"
 )
 
-var redditUrl string = "http://www.reddit.com/r/all/hot.json"
+var redditURL = "http://www.reddit.com/r/all/hot.json"
 
-type Response struct {
+type redditResponse struct {
     Data struct {
         Children []struct {
-            Data Item
+            Data item
         }
     }
 }
 
-type Item struct {
-    Title    string
-    URL      string
+type item struct {
+    Title     string
+    URL       string
     Thumbnail string
 }
 
-func (i Item) String() string {
+func (i item) String() string {
     return fmt.Sprintf("%s\n%s\n%s", i.Title, i.URL, i.Thumbnail)
 }
 
-type Trends struct {
-    Topics []Item
+type jsonResponse struct {
+    Links []item
 }
 
-var data []Item
+var data []item
 
 func grabData() {
-    resp, err := http.Get(redditUrl)
+    resp, err := http.Get(redditURL)
     if err != nil {
         return;
     }
@@ -43,22 +43,22 @@ func grabData() {
     if resp.StatusCode != http.StatusOK {
         return;
     }
-    r := new(Response)
+    r := new(redditResponse)
     err = json.NewDecoder(resp.Body).Decode(r)
     if err != nil {
         return;
     }
-    data = make([]Item, len(r.Data.Children))
+    data = make([]item, len(r.Data.Children))
     for i, child := range r.Data.Children {
         data[i] = child.Data
     }
 }
 
-func getTrendshandler(w http.ResponseWriter, r *http.Request) {
+func getTrendsHandler(w http.ResponseWriter, r *http.Request) {
 
 
-    trends := Trends{data}
-    
+    trends := jsonResponse{data}
+
     js, err := json.Marshal(trends)
 
     if err != nil {
@@ -81,7 +81,7 @@ func main() {
 
     go cron()
 
-    http.HandleFunc("/trends", getTrendshandler)
+    http.HandleFunc("/trends", getTrendsHandler)
     log.Fatal(http.ListenAndServe(":8080", nil))
 
 }
