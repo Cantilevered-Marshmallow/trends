@@ -6,6 +6,7 @@ import (
     "encoding/json"
     "net/http"
     "time"
+    "github.com/asaskevich/govalidator"
 )
 
 var redditURL = "http://www.reddit.com/r/all/hot.json"
@@ -20,12 +21,12 @@ type redditResponse struct {
 
 type item struct {
     Title     string
-    Url       string
+    URL       string
     Thumbnail string
 }
 
 func (i item) String() string {
-    return fmt.Sprintf("%s\n%s\n%s", i.Title, i.Url, i.Thumbnail)
+    return fmt.Sprintf("%s\n%s\n%s", i.Title, i.URL, i.Thumbnail)
 }
 
 type jsonResponse struct {
@@ -50,6 +51,12 @@ func grabData() {
     }
     data = make([]item, len(r.Data.Children))
     for i, child := range r.Data.Children {
+        if !govalidator.IsURL(child.Data.URL) {
+            continue;
+        }
+        if !govalidator.IsURL(child.Data.Thumbnail) {
+            child.Data.Thumbnail = ""
+        }
         data[i] = child.Data
     }
 }
@@ -73,7 +80,7 @@ func getTrendsHandler(w http.ResponseWriter, r *http.Request) {
 func cron() {
     for {
         grabData()
-        time.Sleep(5*time.Second)
+        time.Sleep(60*time.Second)
     }
 }
 
