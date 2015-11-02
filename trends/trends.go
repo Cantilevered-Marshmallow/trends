@@ -1,4 +1,4 @@
-package trends
+package main
 
 import (
     "log"
@@ -20,12 +20,12 @@ type redditResponse struct {
 
 type item struct {
     Title     string
-    URL       string
+    Url       string
     Thumbnail string
 }
 
 func (i item) String() string {
-    return fmt.Sprintf("%s\n%s\n%s", i.Title, i.URL, i.Thumbnail)
+    return fmt.Sprintf("%s\n%s\n%s", i.Title, i.Url, i.Thumbnail)
 }
 
 type jsonResponse struct {
@@ -82,6 +82,6 @@ func main() {
     go cron()
 
     http.HandleFunc("/trends", getTrendsHandler)
-    log.Fatal(http.ListenAndServe(":8080", nil))
+    log.Fatal(http.ListenAndServe(":5555", nil))
 
 }
