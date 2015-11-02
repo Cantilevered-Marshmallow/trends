@@ -1,4 +1,4 @@
-package trends
+package main
 
 import (
     "testing"
@@ -6,7 +6,7 @@ import (
     "net/http/httptest"
     "encoding/json"
     "bytes"
-    "time"
+    // "fmt"
 )
 
 func checkJSONFormat (body *bytes.Buffer) bool {
@@ -22,8 +22,7 @@ func checkJSONFormat (body *bytes.Buffer) bool {
 }
 
 func TestGetJson (t *testing.T) {
-    go cron()
-    time.Sleep(1*time.Second)
+    grabData()
     req, _ := http.NewRequest("GET", "", nil)
     w := httptest.NewRecorder()
     getTrendsHandler(w, req)
