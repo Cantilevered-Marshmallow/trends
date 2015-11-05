@@ -1,4 +1,4 @@
-package main
+package trends
 
 import (
     "testing"
@@ -10,7 +10,7 @@ import (
 )
 
 func checkJSONFormat (body *bytes.Buffer) bool {
-    r := new(jsonResponse)
+    r := new(trendsResponse)
     err := json.NewDecoder(body).Decode(r)
     if err != nil {
         return false
@@ -22,7 +22,7 @@ func checkJSONFormat (body *bytes.Buffer) bool {
 }
 
 func TestGetJson (t *testing.T) {
-    grabData()
+    grabRedditData()
     req, _ := http.NewRequest("GET", "", nil)
     w := httptest.NewRecorder()
     getTrendsHandler(w, req)

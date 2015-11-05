@@ -1,4 +1,4 @@
-package main
+package trends
 
 import (
     "log"
@@ -14,28 +14,28 @@ var redditURL = "http://www.reddit.com/r/all/hot.json"
 type redditResponse struct {
     Data struct {
         Children []struct {
-            Data item
+            Data redditItem
         }
     }
 }
 
-type item struct {
+type redditItem struct {
     Title     string
     URL       string
     Thumbnail string
 }
 
-func (i item) String() string {
+func (i redditItem) String() string {
     return fmt.Sprintf("%s\n%s\n%s", i.Title, i.URL, i.Thumbnail)
 }
 
-type jsonResponse struct {
-    Links []item
+type trendsResponse struct {
+    Links []redditItem
 }
 
-var data []item
+var redditData []redditItem
 
-func grabData() {
+func grabRedditData() {
     resp, err := http.Get(redditURL)
     if err != nil {
         return;
@@ -47,9 +47,10 @@ func grabData() {
     r := new(redditResponse)
     err = json.NewDecoder(resp.Body).Decode(r)
     if err != nil {
-        return;
+        return
     }
-    data = make([]item, len(r.Data.Children))
+
+    redditData = make([]redditItem, len(r.Data.Children))
     for i, child := range r.Data.Children {
         if !govalidator.IsURL(child.Data.URL) {
             continue;
@@ -57,14 +58,12 @@ func grabData() {
         if !govalidator.IsURL(child.Data.Thumbnail) {
             child.Data.Thumbnail = ""
         }
-        data[i] = child.Data
+        redditData[i] = child.Data
     }
 }
 
 func getTrendsHandler(w http.ResponseWriter, r *http.Request) {
-
-
-    trends := jsonResponse{data}
+    trends := trendsResponse{redditData}
 
     js, err := json.Marshal(trends)
 
@@ -76,10 +75,9 @@ func getTrendsHandler(w http.ResponseWriter, r *http.Request) {
     w.Write(js)
 }
 
-
 func cron() {
     for {
-        grabData()
+        grabRedditData()
         time.Sleep(60*time.Second)
     }
 }
@@ -87,8 +85,7 @@ func cron() {
 func main() {
 
     go cron()
-
     http.HandleFunc("/trends", getTrendsHandler)
+    http.HandleFunc("/message", postMessageHandler)
     log.Fatal(http.ListenAndServe(":5555", nil))
-
 }
