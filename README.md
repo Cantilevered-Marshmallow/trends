@@ -1,6 +1,6 @@
 # Marshmallow - Trends Service
 
-This is the Trends Service used by [Marshmallow](https://github.com/Cantilevered-Marshmallow/marshmallow).
+This is the Trends Service used by [Marshmallow](https://github.com/Cantilevered-Marshmallow/marshmallow) powered by Go.
 Refer to the README on the [main repo](https://github.com/Cantilevered-Marshmallow/marshmallow) for more information.
 
 ## Team
@@ -11,7 +11,7 @@ Refer to the README on the [main repo](https://github.com/Cantilevered-Marshmall
 
 ## Deployment
 
-Clone this repo down into your Go workspace and refer to its path in `server/docker-compose.yml` in the [Marshmallow repo](https://github.com/Cantilevered-Marshmallow/marshmallow).
+Clone this repo down into your Go workspace and refer to its path in `server/docker-compose.yml` in the [main repo](https://github.com/Cantilevered-Marshmallow/marshmallow).
 
 Deployment with the parts of the app is fully handled by docker. Refer to the README on the [main repo](https://github.com/Cantilevered-Marshmallow/marshmallow) for more information.
 
@@ -34,4 +34,4 @@ trends
 
 ## Testing
 
-Simply `go test` from within the trends directory to run `trends_test.go`
+Simply `go test` from within the `trends` directory to run `trends_test.go`
